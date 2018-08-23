@@ -45,12 +45,62 @@ class NumberContractTest : StringSpec({
         }
     }
     "Access transaction: The Last Operator must be blank" {
-    ledgerServices.ledger {
-        transaction {
-            output(NUMBER_CONTRACT_ID, NumberState("18600575799", cucc.party, cucc.party, ctcc.party))
-            command(listOf(cucc.publicKey, cucc.publicKey, ctcc.publicKey), NumberContract.Commands.Access())
-            `fails with`("The Last Operator must be blank")
+        ledgerServices.ledger {
+            transaction {
+                output(NUMBER_CONTRACT_ID, NumberState("18600575799", cucc.party, cucc.party, ctcc.party))
+                command(listOf(cucc.publicKey, cucc.publicKey, ctcc.publicKey), NumberContract.Commands.Access())
+                `fails with`("The Last Operator must be blank")
+            }
         }
     }
-}
+    "TransferTo transaction" {
+        ledgerServices.ledger {
+            transaction {
+                input(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cucc.party, null))
+                output(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cmcc.party, cucc.party))
+                command(listOf(cucc.publicKey, cmcc.publicKey), NumberContract.Commands.TransferTo())
+                verifies()
+            }
+        }
+    }
+    "TransferTo transaction: Number in Input and Output must be same" {
+        ledgerServices.ledger {
+            transaction {
+                input(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cucc.party, null))
+                output(NUMBER_CONTRACT_ID, NumberState("18600575799", cmcc.party, cucc.party, cucc.party))
+                command(listOf(cucc.publicKey, cmcc.publicKey), NumberContract.Commands.TransferTo())
+                `fails with`("Number in Input and Output must be same")
+            }
+        }
+    }
+    "TransferTo transaction: Origin Operator in Input and Output must be same" {
+        ledgerServices.ledger {
+            transaction {
+                input(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cucc.party, null))
+                output(NUMBER_CONTRACT_ID, NumberState("18600575700", cmcc.party, ctcc.party, cucc.party))
+                command(listOf(cucc.publicKey, cmcc.publicKey), NumberContract.Commands.TransferTo())
+                `fails with`("Origin Operator in Input and Output must be same")
+            }
+        }
+    }
+    "TransferTo transaction: Input's Current Operator and Output's Last Operator must be same" {
+        ledgerServices.ledger {
+            transaction {
+                input(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cucc.party, null))
+                output(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cmcc.party, ctcc.party))
+                command(listOf(cucc.publicKey, cmcc.publicKey), NumberContract.Commands.TransferTo())
+                `fails with`("Input's Current Operator and Output's Last Operator must be same")
+            }
+        }
+    }
+//    "TransferTo transaction: Output's Current Operator and Last Operator must NOT be same" {
+//        ledgerServices.ledger {
+//            transaction {
+//                input(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cucc.party, null))
+//                output(NUMBER_CONTRACT_ID, NumberState("18600575700", cucc.party, cmcc.party, cucc.party))
+//                command(listOf(cucc.publicKey, cmcc.publicKey), NumberContract.Commands.TransferTo())
+//                `fails with`("Output's Current Operator and Last Operator must NOT be same")
+//            }
+//        }
+//    }
 })
