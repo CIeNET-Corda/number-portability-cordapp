@@ -3,7 +3,6 @@ package com.cienet.npdapp.number
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.ContractState
-import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
@@ -27,7 +26,11 @@ data class NumberState(val number: String,
                     override val linearId: UniqueIdentifier = UniqueIdentifier()):
     LinearState, QueryableState {
     /** The public keys of the involved parties. */
-    override val participants: List <AbstractParty> get () = listOf (origOperator, currOperator)
+    override val participants: List <Party> get () {
+        if (lastOperator == null)
+            return listOf(origOperator, currOperator).distinct()
+        return listOf(origOperator, currOperator, lastOperator).distinct()
+    }
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {

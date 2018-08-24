@@ -8,9 +8,10 @@ import net.corda.core.transactions.LedgerTransaction
  *
  * This contract enforces rules regarding the creation of a valid [NumberState], which in turn encapsulates an [Number].
  *
- * For a new [Number] to be issued onto the ledger, a transaction is required which takes:
- * - Zero input states.
- * - One output state: the new [Number].
+ * For a [NumberState] to be issued onto the ledger, a transaction is required which takes:
+ * - Zero or one input states.
+ * - One output state: [NumberState].
+ * - An Create() command with the public keys of both the lender and the borrower.
  * - An Create() command with the public keys of both the lender and the borrower.
  *
  * All contracts must sub-class the [Contract] interface.
