@@ -1,27 +1,21 @@
 package com.cienet.npdapp
 
 import com.cienet.npdapp.number.NumberAccessFlow
-import com.cienet.npdapp.number.NumberContract
 import com.cienet.npdapp.number.NumberState
-import com.cienet.npdapp.number.NumberContract.Companion.NUMBER_CONTRACT_ID
+
 import io.kotlintest.Description
 import io.kotlintest.TestResult
 import io.kotlintest.extensions.TestListener
 import io.kotlintest.specs.StringSpec
-import net.corda.core.contracts.TransactionVerificationException
 
-import net.corda.core.identity.CordaX500Name
-import net.corda.core.utilities.getOrThrow
-import net.corda.testing.core.TestIdentity
-import net.corda.testing.core.singleIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockServices
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.ledger
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
+import net.corda.core.contracts.TransactionVerificationException
+import net.corda.core.utilities.getOrThrow
+import net.corda.testing.core.singleIdentity
+import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.StartedMockNode
 
 class NumberAccessFlowTest : StringSpec() {
 
