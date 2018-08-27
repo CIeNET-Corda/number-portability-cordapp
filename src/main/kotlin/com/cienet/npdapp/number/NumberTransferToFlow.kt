@@ -76,7 +76,7 @@ object NumberTransferToFlow {
             val orderStateRef = results.states.stream()
                     .filter{it.state.data.number == number && it.state.data.currOperator == me}
                     .findAny()
-                    .orElse(null) ?: throw FlowException("Can not transfer a number to self.")
+                    .orElse(null) ?: throw FlowException("Can not find this number belongs to myself.")
 
             val inputState = orderStateRef.state.data
             val outputState = NumberState(number, inputState.origOperator, otherParty, inputState.currOperator)
@@ -143,6 +143,9 @@ object NumberTransferToFlow {
                         "current" ->
                             "The current operator must myself." using
                                     (number.currOperator == serviceHub.myInfo.legalIdentities.first())
+                        "orig" ->
+                            "The orig operator must myself." using
+                                    (number.origOperator == serviceHub.myInfo.legalIdentities.first())
                     }
                 }
             }
