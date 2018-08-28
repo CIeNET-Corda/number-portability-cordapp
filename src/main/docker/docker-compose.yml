@@ -3,17 +3,18 @@ version: '2'
 services:
   NotaryCordapp:
     image: npcordapp
+    tty: true
     container_name: Notary_Cordapp
     restart: always
     environment:
-      - NODE_NAME="Notary"
+      - NODE_NAME=Notary
       - P2PPORT=10002
       - RPC_ADDRESS=10003
       - RPC_ADMINADDRESS=10043
       - JDWP_PORT=5005
       - JOLOKIA_PORT=7005
     volumes:
-      - /Notary_Cordapp:/nodes/Notary
+      - /Notary_Cordapp:/nodes/Notary/logs
     ports:
       - 10002:10002
       - 10003:10003
@@ -24,17 +25,18 @@ services:
 
   CTCCCordapp:
     image: npcordapp
+    tty: true
     container_name: CTCC_Cordapp
     restart: always
     environment:
-    - NODE_NAME="CTCC"
+    - NODE_NAME=CTCC
     - P2PPORT=10011
     - RPC_ADDRESS=10012
     - RPC_ADMINADDRESS=10052
     - JDWP_PORT=5006
     - JOLOKIA_PORT=7006
     volumes:
-    - /CTCC_Cordapp:/nodes/CTCC
+    - /CTCC_Cordapp:/nodes/CTCC/logs
     ports:
     - 10011:10011
     - 10012:10012
@@ -45,17 +47,18 @@ services:
 
   CMCCCordapp:
     image: npcordapp
+    tty: true
     container_name: CMCC_Cordapp
     restart: always
     environment:
-    - NODE_NAME="CMCC"
+    - NODE_NAME=CMCC
     - P2PPORT=10005
     - RPC_ADDRESS=10006
     - RPC_ADMINADDRESS=10046
     - JDWP_PORT=5007
     - JOLOKIA_PORT=7007
     volumes:
-    - /CMCC_Cordapp:/nodes/CMCC
+    - /CMCC_Cordapp:/nodes/CMCC/logs
     ports:
     - 10005:10005
     - 10006:10006
@@ -66,17 +69,18 @@ services:
 
   CUCCCordapp:
     image: npcordapp
+    tty: true
     container_name: CUCC_Cordapp
     restart: always
     environment:
-    - NODE_NAME="CUCC"
+    - NODE_NAME=CUCC
     - P2PPORT=10008
     - RPC_ADDRESS=10009
     - RPC_ADMINADDRESS=10049
     - JDWP_PORT=5008
     - JOLOKIA_PORT=7008
     volumes:
-    - /CUCC_Cordapp:/nodes/CUCC
+    - /CUCC_Cordapp:/nodes/CUCC/logs
     ports:
     - 10008:10008
     - 10009:10009
