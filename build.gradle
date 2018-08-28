@@ -23,8 +23,6 @@ buildscript {
         classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
 
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-
-        classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
 }
 
@@ -43,8 +41,6 @@ apply plugin: 'net.corda.plugins.quasar-utils'
 
 apply plugin: "idea"
 apply plugin: 'org.jetbrains.dokka'
-
-apply plugin: 'docker'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
