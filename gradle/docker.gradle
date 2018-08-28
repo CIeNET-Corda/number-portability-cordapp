@@ -1,0 +1,26 @@
+import org.gradle.internal.os.OperatingSystem
+
+task buildDocker(type: Exec) {
+    doFirst {
+        copy {
+            from "src/main/docker/"
+            into "build/docker/"
+            include "*"
+        }
+        copy {
+            from "build/libs"
+            into "build/docker/"
+            include "*.war*"
+        }
+        copy {
+            from "src/main/resources/ssl/"
+            into "build/docker/"
+            include "*.jks"
+        }
+    }
+    if (OperatingSystem.current().isWindows()) {
+        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'collect', 'build/docker/'
+    } else {
+        commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'collect', 'build/docker/'
+    }
+}

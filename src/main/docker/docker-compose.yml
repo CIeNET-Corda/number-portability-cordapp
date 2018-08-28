@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  mcc-app:
+    image: cordapp
+    container_name: cordapp
+    restart: always
+    environment:
+      - DUMMY=empty
+    volumes:
+      - /cordapp-nodes:/nodes
+    ports:
+      - 10003:10003
+      - 10006:10006
+      - 10009:10009
+      - 10012:10012
+    network_mode: "host"

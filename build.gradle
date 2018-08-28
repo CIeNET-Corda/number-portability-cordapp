@@ -23,6 +23,8 @@ buildscript {
         classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
 
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
 }
 
@@ -42,8 +44,10 @@ apply plugin: 'net.corda.plugins.quasar-utils'
 apply plugin: "idea"
 apply plugin: 'org.jetbrains.dokka'
 
+apply plugin: 'docker'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
@@ -146,3 +150,5 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 }
+
+apply from: 'gradle/docker.gradle'
