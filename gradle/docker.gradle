@@ -8,9 +8,9 @@ task buildDocker(type: Exec) {
             include "*"
         }
         copy {
-            from "build/libs"
+            from "build"
             into "build/docker/"
-            include "*.war*"
+            include "nodes/**"
         }
         copy {
             from "src/main/resources/ssl/"
@@ -19,8 +19,8 @@ task buildDocker(type: Exec) {
         }
     }
     if (OperatingSystem.current().isWindows()) {
-        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'collect', 'build/docker/'
+        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'npcordapp', 'build/docker/'
     } else {
-        commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'collect', 'build/docker/'
+        commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'npcordapp', 'build/docker/'
     }
 }
