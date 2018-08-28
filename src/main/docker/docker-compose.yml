@@ -1,17 +1,86 @@
 version: '2'
 
 services:
-  mcc-app:
-    image: cordapp
-    container_name: cordapp
+  NotaryCordapp:
+    image: npcordapp
+    container_name: Notary_Cordapp
     restart: always
     environment:
-      - DUMMY=empty
+      - NODE_NAME="Notary"
+      - P2PPORT=10002
+      - RPC_ADDRESS=10003
+      - RPC_ADMINADDRESS=10043
+      - JDWP_PORT=5005
+      - JOLOKIA_PORT=7005
     volumes:
-      - /cordapp-nodes:/nodes
+      - /Notary_Cordapp:/nodes/Notary
     ports:
+      - 10002:10002
       - 10003:10003
-      - 10006:10006
-      - 10009:10009
-      - 10012:10012
+      - 10043:10043
+      - 5005:5005
+      - 7005:7005
+    network_mode: "host"
+
+  CTCCCordapp:
+    image: npcordapp
+    container_name: CTCC_Cordapp
+    restart: always
+    environment:
+    - NODE_NAME="CTCC"
+    - P2PPORT=10011
+    - RPC_ADDRESS=10012
+    - RPC_ADMINADDRESS=10052
+    - JDWP_PORT=5006
+    - JOLOKIA_PORT=7006
+    volumes:
+    - /CTCC_Cordapp:/nodes/CTCC
+    ports:
+    - 10011:10011
+    - 10012:10012
+    - 10052:10052
+    - 5006:5006
+    - 7006:7006
+    network_mode: "host"
+
+  CMCCCordapp:
+    image: npcordapp
+    container_name: CMCC_Cordapp
+    restart: always
+    environment:
+    - NODE_NAME="CMCC"
+    - P2PPORT=10005
+    - RPC_ADDRESS=10006
+    - RPC_ADMINADDRESS=10046
+    - JDWP_PORT=5007
+    - JOLOKIA_PORT=7007
+    volumes:
+    - /CMCC_Cordapp:/nodes/CMCC
+    ports:
+    - 10005:10005
+    - 10006:10006
+    - 10046:10046
+    - 5007:5007
+    - 7007:7007
+    network_mode: "host"
+
+  CUCCCordapp:
+    image: npcordapp
+    container_name: CUCC_Cordapp
+    restart: always
+    environment:
+    - NODE_NAME="CUCC"
+    - P2PPORT=10008
+    - RPC_ADDRESS=10009
+    - RPC_ADMINADDRESS=10049
+    - JDWP_PORT=5008
+    - JOLOKIA_PORT=7008
+    volumes:
+    - /CUCC_Cordapp:/nodes/CUCC
+    ports:
+    - 10008:10008
+    - 10009:10009
+    - 10049:10049
+    - 5008:5008
+    - 7008:7008
     network_mode: "host"
