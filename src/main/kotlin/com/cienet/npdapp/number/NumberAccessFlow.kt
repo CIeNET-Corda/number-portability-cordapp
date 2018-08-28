@@ -59,15 +59,18 @@ object NumberAccessFlow {
         override fun call(): SignedTransaction {
             // Obtain a reference to the notary we want to use.
             val notary = serviceHub.networkMapCache.notaryIdentities[0]
+            val me = serviceHub.myInfo.legalIdentities.first()
+            val broadcastTo = serviceHub.networkMapCache.allNodes
+                    .filter{it.legalIdentities.first()!= notary && it.legalIdentities.first() != me}
+                    .map{it.legalIdentities.first()}
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
-            val myself = serviceHub.myInfo.legalIdentities.first()
-            val iouState = NumberState(number, myself, myself, null)
-            val txCommand = Command(NumberContract.Commands.Access(), iouState.participants.map { it.owningKey })
+            val outputState = NumberState(number, me, me, broadcastTo,null)
+            val txCommand = Command(NumberContract.Commands.Access(), outputState.participants.map { it.owningKey })
             val txBuilder = TransactionBuilder(notary)
-                    .addOutputState(iouState, NUMBER_CONTRACT_ID)
+                    .addOutputState(outputState, NUMBER_CONTRACT_ID)
                     .addCommand(txCommand)
 
             // Stage 2.
@@ -83,7 +86,7 @@ object NumberAccessFlow {
             // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the counterparty, and receive it back with their signature.
-            val otherPartyFlows = iouState.participants.map { initiateFlow(it) }
+            val otherPartyFlows = outputState.participants.filter { it != me }.map { initiateFlow(it) }
             val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartyFlows, GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.
@@ -102,8 +105,9 @@ object NumberAccessFlow {
                     val output = stx.tx.outputs.single().data
                     "This must be an Number transaction." using (output is NumberState)
                     val number = output as NumberState
-                    "The current operator must myself." using
-                            (number.currOperator == serviceHub.myInfo.legalIdentities.first())
+                    val me = serviceHub.myInfo.legalIdentities.first()
+                    "Myself must be in broadcastTo." using number.broadcastTo.contains(me)
+                    //TODO received the broadcast and do something more
                 }
             }
             return subFlow(signTransactionFlow)

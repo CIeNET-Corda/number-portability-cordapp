@@ -12,7 +12,6 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import net.corda.core.utilities.unwrap
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the Number encapsulated
@@ -25,7 +24,7 @@ import net.corda.core.utilities.unwrap
  *
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
-object NumberTransferToFlow {
+object NumberTransferFromFlow {
     @InitiatingFlow
     @StartableByRPC
     class Initiator(private val number: String, private val otherParty: Party) : FlowLogic<SignedTransaction>() {
@@ -64,22 +63,27 @@ object NumberTransferToFlow {
             // Obtain a reference to the notary we want to use.
             val notary = serviceHub.networkMapCache.notaryIdentities[0]
             val me = serviceHub.myInfo.legalIdentities.first()
+            val broadcastTo = serviceHub.networkMapCache.allNodes
+                    .filter{it.legalIdentities.first()!= notary
+                            && it.legalIdentities.first() != me
+                            && it.legalIdentities.first() != otherParty}
+                    .map{it.legalIdentities.first()}
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
             if (otherParty == me) {
-                throw FlowException("Can not transfer a number to self.")
+                throw FlowException("Can not transfer a number from self.")
             }
             val criteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED)
             val results = serviceHub.vaultService.queryBy(NumberState::class.java, criteria)
             val orderStateRef = results.states.stream()
-                    .filter{it.state.data.number == number && it.state.data.currOperator == me}
+                    .filter{it.state.data.number == number && it.state.data.currOperator == otherParty}
                     .findAny()
-                    .orElse(null) ?: throw FlowException("Can not find this number belongs to myself.")
+                    .orElse(null) ?: throw FlowException("Can not find this number belongs to the other party.")
 
             val inputState = orderStateRef.state.data
-            val outputState = NumberState(number, inputState.origOperator, otherParty, inputState.currOperator)
+            val outputState = NumberState(number, inputState.origOperator, me, broadcastTo, inputState.currOperator)
             val participants = outputState.participants.plus(inputState.participants).distinct()
             val txCommand = Command(NumberContract.Commands.TransferTo(), participants.map { it.owningKey })
 
@@ -100,27 +104,8 @@ object NumberTransferToFlow {
 
             // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
-            // Send Request Type
-            val originSession: FlowSession? =
-            if (outputState.origOperator != outputState.lastOperator
-                    && outputState.origOperator != outputState.currOperator)
-                initiateFlow(outputState.origOperator)
-            else {
-                null
-            }
-            val transferToSession = initiateFlow(outputState.currOperator)
-
-            originSession?.send("orig")
-            transferToSession.send("current")
-
-            // Send the state to the counter party, and receive it back with their signature.
-            val otherPartyFlows: List<FlowSession>? =
-            if (originSession != null)
-                listOf(originSession, transferToSession).distinct()
-            else
-                listOf(transferToSession).distinct()
-
-            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartyFlows as List<FlowSession>, GATHERING_SIGS.childProgressTracker()))
+            val otherPartyFlows = outputState.participants.filter { it != me }.map { initiateFlow(it) }
+            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, otherPartyFlows, GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION
@@ -133,19 +118,18 @@ object NumberTransferToFlow {
     class Acceptor(val otherPartyFlow: FlowSession) : FlowLogic<SignedTransaction>() {
         @Suspendable
         override fun call(): SignedTransaction {
-            val request = otherPartyFlow.receive<String>().unwrap{it}
             val signTransactionFlow = object : SignTransactionFlow(otherPartyFlow) {
                 override fun checkTransaction(stx: SignedTransaction) = requireThat {
                     val output = stx.tx.outputs.single().data
                     "This must be an Number transaction." using (output is NumberState)
                     val number = output as NumberState
-                    when (request) {
-                        "current" ->
-                            "The current operator must myself." using
-                                    (number.currOperator == serviceHub.myInfo.legalIdentities.first())
-                        "orig" ->
-                            "The orig operator must myself." using
-                                    (number.origOperator == serviceHub.myInfo.legalIdentities.first())
+                    val me = serviceHub.myInfo.legalIdentities.first()
+                    if (number.broadcastTo.contains(me)) {
+                        "Myself must be in broadcastTo." using number.broadcastTo.contains(me)
+                        //TODO received the broadcast and do something more
+                    } else {
+                        "The last operator must myself." using (number.lastOperator == me)
+                        //TODO Add other checking logic for reject this sign request
                     }
                 }
             }

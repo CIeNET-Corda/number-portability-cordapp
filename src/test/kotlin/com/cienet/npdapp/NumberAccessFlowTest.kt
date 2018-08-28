@@ -49,7 +49,7 @@ class NumberAccessFlowTest : StringSpec() {
 
             val signedTx = future.getOrThrow()
             // We check the recorded transaction in both vaults.
-            for (node in listOf(a)) {
+            for (node in listOf(a, b, c)) {
                 val recordedTx = node.services.validatedTransactions.getTransaction(signedTx.id)
                 val txOutputs = recordedTx!!.tx.outputs
                 assert(txOutputs.size == 1)

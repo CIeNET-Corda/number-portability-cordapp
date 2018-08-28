@@ -38,7 +38,7 @@ open class NumberContract : Contract {
         if (accessCommands.isNotEmpty()) {
             //process Access
             requireThat {
-                val numberRegex = Regex("^1(3|4|5|7|8)\\d{9}\$")
+                val numberRegex = Regex("^1[34578]\\d{9}\$")
                 "The format of Number must be valid" using numberRegex.matches(outputState.number)
                 "The Origin and Current Operator must be same" using (outputState.currOperator == outputState.origOperator)
                 "The Last Operator must be blank" using (outputState.lastOperator == null)

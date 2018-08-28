@@ -20,16 +20,18 @@ import net.corda.core.schemas.QueryableState
   * @param currOperator the current operator of this number.
   */
 data class NumberState(val number: String,
-                    val origOperator: Party,
-                    val currOperator: Party,
-                    val lastOperator: Party? = null,
-                    override val linearId: UniqueIdentifier = UniqueIdentifier()):
+                       val origOperator: Party,
+                       val currOperator: Party,
+                       val broadcastTo: List<Party>,
+                       val lastOperator: Party? = null,
+                       override val linearId: UniqueIdentifier = UniqueIdentifier()):
     LinearState, QueryableState {
     /** The public keys of the involved parties. */
     override val participants: List <Party> get () {
-        if (lastOperator == null)
-            return listOf(origOperator, currOperator).distinct()
-        return listOf(origOperator, currOperator, lastOperator).distinct()
+        var participants = listOf(origOperator, currOperator).plus(broadcastTo)
+        if (lastOperator != null)
+            participants = participants.plus(lastOperator)
+        return participants.distinct()
     }
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
@@ -39,6 +41,7 @@ data class NumberState(val number: String,
                     this.origOperator.name.toString(),
                     this.lastOperator?.name?.toString() ?: "",
                     this.currOperator.name.toString(),
+                    this.broadcastTo.toString(),
                     this.linearId.id
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")

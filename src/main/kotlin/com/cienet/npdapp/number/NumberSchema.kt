@@ -34,10 +34,13 @@ object NumberSchemaV1 : MappedSchema(
             @Column(name = "currOperator")
             var currOperatorName: String,
 
+            @Column(name = "broadcastTo")
+            var broadcastToList: String,
+
             @Column(name = "linear_id")
             var linearId: UUID
     ) : PersistentState() {
         // Default constructor required by hibernate.
-        constructor(): this("", "", "", "", UUID.randomUUID())
+        constructor(): this("", "", "", "", "", UUID.randomUUID())
     }
 }
