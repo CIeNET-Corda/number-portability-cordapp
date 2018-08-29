@@ -14,7 +14,7 @@ services:
       - JDWP_PORT=5005
       - JOLOKIA_PORT=7005
     volumes:
-      - /Notary_Cordapp:/nodes/Notary/logs
+      - ./Notary_Cordapp:/nodes/Notary/logs
     ports:
       - 10002:10002
       - 10003:10003
@@ -36,7 +36,7 @@ services:
     - JDWP_PORT=5006
     - JOLOKIA_PORT=7006
     volumes:
-    - /CTCC_Cordapp:/nodes/CTCC/logs
+    - ./CTCC_Cordapp:/nodes/CTCC/logs
     ports:
     - 10011:10011
     - 10012:10012
@@ -58,7 +58,7 @@ services:
     - JDWP_PORT=5007
     - JOLOKIA_PORT=7007
     volumes:
-    - /CMCC_Cordapp:/nodes/CMCC/logs
+    - ./CMCC_Cordapp:/nodes/CMCC/logs
     ports:
     - 10005:10005
     - 10006:10006
@@ -80,7 +80,7 @@ services:
     - JDWP_PORT=5008
     - JOLOKIA_PORT=7008
     volumes:
-    - /CUCC_Cordapp:/nodes/CUCC/logs
+    - ./CUCC_Cordapp:/nodes/CUCC/logs
     ports:
     - 10008:10008
     - 10009:10009
