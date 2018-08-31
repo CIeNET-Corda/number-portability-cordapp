@@ -47,6 +47,7 @@ targetCompatibility = 1.8
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testCompile "junit:junit:$junit_version"
 
@@ -65,7 +66,7 @@ dependencies {
 
     cordapp "$corda_release_group:corda-finance:$corda_release_version"
 
-    compile 'com.github.ajalt:clikt:1.5.0'
+    implementation 'com.github.ajalt:clikt:1.5.0'
 }
 
 test {
