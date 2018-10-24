@@ -63,14 +63,13 @@ dependencies {
     testCompile 'io.kotlintest:kotlintest-runner-junit5:3.1.7'
 
     cordapp "$corda_release_group:corda-finance:$corda_release_version"
-    cordapp "$corda_release_group:corda:$corda_release_version"
 
     implementation 'com.github.ajalt:clikt:1.5.0'
 }
 
-//test {
-//    useJUnitPlatform()
-//}
+test {
+    useJUnitPlatform()
+}
 
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
