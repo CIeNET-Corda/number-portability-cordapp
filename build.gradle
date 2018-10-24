@@ -76,9 +76,9 @@ sourceSets {
     test.kotlin.srcDirs += 'src/test/kotlin'
 }
 
-//task wrapper(type: Wrapper) {
-//    gradleVersion = "4.9"
-//}
+wrapper {
+    gradleVersion = "4.9"
+}
 
 // https://github.com/Kotlin/dokka
 
