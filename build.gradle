@@ -3,11 +3,14 @@ buildscript {
     ext.corda_release_version = '3.2-corda'
     ext.corda_gradle_plugins_version = '3.1.0'
 
-    ext.kotlin_version = '1.1.60'
+    // ext.kotlin_version = '1.1.60'
+    ext.kotlin_version = '1.2.71'
     ext.dokka_version = '0.9.17'
 
     ext.junit_version = '4.12'
     ext.quasar_version = '0.7.9'
+
+    ext.grpcVersion = '1.16.1'
 
     repositories {
         mavenLocal()
@@ -21,6 +24,8 @@ buildscript {
         classpath "net.corda.plugins:cordapp:$corda_gradle_plugins_version"
         classpath "net.corda.plugins:cordformation:$corda_gradle_plugins_version"
         classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
+
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.5"
 
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
     }
@@ -38,16 +43,25 @@ apply plugin: 'kotlin'
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
+apply plugin: 'com.google.protobuf'
 
 apply plugin: "idea"
 apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+    // Have to add guava for avioding 
+    // "java.lang.NoSuchMethodError: com.google.common.reflect.TypeToken.isSupertypeOf(Ljava/lang/reflect/Type;)"
+    // when adding gRPC in this project
+    compile "com.google.guava:guava:21.0"
+
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    // compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testCompile "junit:junit:$junit_version"
 
@@ -61,8 +75,14 @@ dependencies {
     cordaRuntime "$corda_release_group:corda:$corda_release_version"
     cordaRuntime "$corda_release_group:corda-webserver:$corda_release_version"
 
+    compile "com.google.api.grpc:proto-google-common-protos:1.0.0"
+    compile "io.grpc:grpc-netty-shaded:$grpcVersion"
+    compile "io.grpc:grpc-protobuf:$grpcVersion"
+    compile "io.grpc:grpc-stub:$grpcVersion"
+
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
     testCompile 'io.kotlintest:kotlintest-runner-junit5:3.1.7'
+    testCompile "io.grpc:grpc-testing:$grpcVersion" // gRCP testing utilities
 
     cordapp "$corda_release_group:corda-finance:$corda_release_version"
 
@@ -148,6 +168,38 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         ]
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
+}
+
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.5.1-1' }
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
+    }
+}
+
+startScripts.enabled = false
+
+task helloWorldServer(type: CreateStartScripts) {
+    mainClassName = 'com.cienet.npdapp.grpc.GRPCServer'
+    applicationName = 'npdapp-GRPCServer'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task helloWorldClient(type: CreateStartScripts) {
+    mainClassName = 'com.cienet.npdapp.grpc.GRPCClient'
+    applicationName = 'npdapp-GRPCClient'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+    from(helloWorldServer)
+    from(helloWorldClient)
+    fileMode = 0755
 }
 
 apply from: 'gradle/docker.gradle'
