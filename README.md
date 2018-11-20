@@ -73,3 +73,15 @@ $ docker-compose -f src/main/docker/docker-compose.yml down
 ```bash
 $ java -classpath out/production/classes com.cienet.npdapp.rpcclient.RPCClientKt --address 10.10.11.111:10046 --flow-name query --number 18600123456
 ```
+
+# gRCP Server/Client
+
+*npdapp-GRPCServer* is only a adapter, it will handover all parameter from *npdapp-GRPCClient* and invoke *com.cienet.npdapp.rpcclient.RPCClientKt*.
+
+```bash
+$ ./build/install/number-portability-cordapp/bin/npdapp-GRPCServer
+```
+
+```bash
+$ ./build/install/number-portability-cordapp/bin/npdapp-GRPCClient --address 10.10.11.111:10046 --flow-name query --number 18600123456
+```
