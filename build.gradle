@@ -9,7 +9,7 @@ buildscript {
     ext.junit_version = '4.12'
     ext.quasar_version = '0.7.9'
 
-    ext.grpcVersion = '1.16.1'
+    ext.grpcVersion = '1.11.0'
 
     repositories {
         mavenLocal()
