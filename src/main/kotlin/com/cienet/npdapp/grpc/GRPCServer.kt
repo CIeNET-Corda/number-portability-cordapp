@@ -3,9 +3,12 @@ package com.cienet.npdapp.grpc
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.stub.StreamObserver
+import io.grpc.Status
 import java.io.IOException
 import java.util.logging.Level
 import java.util.logging.Logger
+
+import com.cienet.npdapp.rpcclient.RPCClient
 
 class GRPCServer {
 
@@ -36,8 +39,18 @@ class GRPCServer {
     }
     internal class NPGRPCAdapterImpl : NPGRPCAdapterGrpc.NPGRPCAdapterImplBase() {
         override fun processNPReq(req: NPRequest, responseObserver: StreamObserver<NPReply>) {
-            val output = req.getInputsList().joinToString(", ")
-            val reply = NPReply.newBuilder().setOutput("NPReply ${output}").build()
+            val client = RPCClient()
+            try {
+                client.parse(req.inputsList)
+                client.run()
+            } catch (e: Exception) {
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription(e.toString())
+                        .withCause(e)
+                        .asRuntimeException())
+                return
+            }
+            val reply = NPReply.newBuilder().setOutput("NPReply OK").build()
             responseObserver.onNext(reply)
             responseObserver.onCompleted()
         }

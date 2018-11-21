@@ -42,6 +42,12 @@ $ ./gradlew clean
 $ ./gradlew deployNodes -Poffline=true
 ```
 
+# Build gRPC server/client
+
+```bash
+$ ./gradlew installDist
+```
+
 ## Build Docker image
 
 ```bash
@@ -71,7 +77,7 @@ $ docker-compose -f src/main/docker/docker-compose.yml down
 # RPC Client
 
 ```bash
-$ java -classpath out/production/classes com.cienet.npdapp.rpcclient.RPCClientKt --address 10.10.11.111:10046 --flow-name query --number 18600123456
+$ java -classpath ./build/install/number-portability-cordapp/lib/*:./build/libs/number-portability-cordapp.jar com.cienet.npdapp.rpcclient.RPCClientKt --address 10.10.11.7:10006 --flow-name access --number 18600123456
 ```
 
 # gRCP Server/Client

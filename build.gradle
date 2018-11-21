@@ -80,7 +80,7 @@ dependencies {
 
     cordapp "$corda_release_group:corda-finance:$corda_release_version"
 
-    implementation 'com.github.ajalt:clikt:1.5.0'
+    compile 'com.github.ajalt:clikt:1.5.0'
 }
 
 test {
@@ -180,14 +180,14 @@ task helloWorldServer(type: CreateStartScripts) {
     mainClassName = 'com.cienet.npdapp.grpc.GRPCServer'
     applicationName = 'npdapp-GRPCServer'
     outputDir = new File(project.buildDir, 'tmp')
-    classpath = jar.outputs.files + project.configurations.runtime
+    classpath = jar.outputs.files + project.configurations.compile
 }
 
 task helloWorldClient(type: CreateStartScripts) {
     mainClassName = 'com.cienet.npdapp.grpc.GRPCClient'
     applicationName = 'npdapp-GRPCClient'
     outputDir = new File(project.buildDir, 'tmp')
-    classpath = jar.outputs.files + project.configurations.runtime
+    classpath = jar.outputs.files + project.configurations.compile
 }
 
 applicationDistribution.into('bin') {
