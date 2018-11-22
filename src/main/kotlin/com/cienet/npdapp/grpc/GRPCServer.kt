@@ -13,6 +13,9 @@ import com.cienet.npdapp.rpcclient.RPCClient
 class GRPCServer {
 
     private var server: Server? = null
+    private val cordaClients: MutableMap<String, RPCClient> = mutableMapOf()
+    private val cordaClient4Parameters: RPCClient = RPCClient()
+
     @Throws(IOException::class)
     private fun start() {
         val port = 50051
@@ -29,6 +32,7 @@ class GRPCServer {
             }
         })
     }
+
     private fun stop() {
         server?.shutdown()
     }
@@ -37,12 +41,22 @@ class GRPCServer {
     private fun blockUntilShutdown() {
         server?.awaitTermination()
     }
-    internal class NPGRPCAdapterImpl : NPGRPCAdapterGrpc.NPGRPCAdapterImplBase() {
+
+    inner class NPGRPCAdapterImpl : NPGRPCAdapterGrpc.NPGRPCAdapterImplBase() {
         override fun processNPReq(req: NPRequest, responseObserver: StreamObserver<NPReply>) {
-            val client = RPCClient()
+
             try {
-                client.parse(req.inputsList)
-                client.run()
+                cordaClient4Parameters.parse(req.inputsList)
+                cordaClients.getOrElse(
+                        cordaClient4Parameters.address
+                ) {
+                    val client = RPCClient()
+                    cordaClients[cordaClient4Parameters.address] = client
+                    return@getOrElse client
+                }.apply {
+                    parse(req.inputsList)
+                    run()
+                }
             } catch (e: Exception) {
                 responseObserver.onError(Status.INTERNAL
                         .withDescription(e.toString())
@@ -55,6 +69,7 @@ class GRPCServer {
             responseObserver.onCompleted()
         }
     }
+
     companion object {
         private val logger = Logger.getLogger(GRPCServer::class.java.name)
         /**

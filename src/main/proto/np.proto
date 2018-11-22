@@ -4,7 +4,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.cienet.npdapp.grpc";
 option java_outer_classname = "NPProto";
-option objc_class_prefix = "HLW";
+option objc_class_prefix = "NP";
 
 package np;
 

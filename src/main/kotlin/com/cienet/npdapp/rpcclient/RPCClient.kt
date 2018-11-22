@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
 
 class RPCClient: CliktCommand() {
     companion object {
-        val logger: Logger = loggerFor<RPCClient>()
+        private val logger: Logger = loggerFor<RPCClient>()
         private fun logState(state: StateAndRef<NumberState>) = logger.info("{}", state.state.data)
         private fun logStates(states: List<StateAndRef<NumberState>>) = logger.info("{}", states.map{it.state.data})
     }
@@ -39,10 +39,12 @@ class RPCClient: CliktCommand() {
     private var cordaRPCOps: CordaRPCOps? = null
 
     fun connect(address: String, username: String, password: String) {
-        val nodeAddress = NetworkHostAndPort.parse(address)
-        val client = CordaRPCClient(nodeAddress)
-        // Can be amended in the com.example.MainKt file.
-        cordaRPCOps = client.start(username, password).proxy
+        if (cordaRPCOps == null) {
+            val nodeAddress = NetworkHostAndPort.parse(address)
+            val client = CordaRPCClient(nodeAddress)
+            // Can be amended in the com.example.MainKt file.
+            cordaRPCOps = client.start(username, password).proxy
+        }
     }
 
     fun queryStateBy(number: String): StateAndRef<NumberState> {
