@@ -43,9 +43,10 @@ class GRPCServer {
     }
 
     inner class NPGRPCAdapterImpl : NPGRPCAdapterGrpc.NPGRPCAdapterImplBase() {
+        @Synchronized
         override fun processNPReq(req: NPRequest, responseObserver: StreamObserver<NPReply>) {
-
             try {
+                System.err.println("*** ${req.inputsList}")
                 cordaClient4Parameters.parse(req.inputsList)
                 cordaClients.getOrElse(
                         cordaClient4Parameters.address
